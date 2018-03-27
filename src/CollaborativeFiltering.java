@@ -6,9 +6,22 @@ public class CollaborativeFiltering {
 	
 	public double predict(int userId, int itemId) {
 		double predictedValue = 0.0;
-		double averageValueOfVotesForCurrentUser = averageValueOfVotesForUser(userId);
+		double averageValueOfVotesForActiveUser = averageValueOfVotesForUser(userId);
+		double correlationSum = 0;
+		double sigmaTerm = 0;
 		
+		for(int currentUser: dataSet.keySet()) {
+			Map<Integer, Double> currentUserVotes = dataSet.get(currentUser);
+			if(currentUserVotes.containsKey(itemId)) {
+				double correlation = correlation(userId, currentUser);
+				correlationSum += correlation;
+				double currentItemVote = currentUserVotes.get(itemId);
+				double averageValueOfVotesForCurrentUser = averageValueOfVotesForUser(currentUser);
+				sigmaTerm += correlation*(currentItemVote - averageValueOfVotesForCurrentUser);
+			}
+		}
 		
+		predictedValue = averageValueOfVotesForActiveUser + (sigmaTerm)/(correlationSum);
 		
 		return predictedValue;
 	}
